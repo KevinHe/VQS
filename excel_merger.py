@@ -177,17 +177,67 @@ class ExcelMergerApp:
             return
 
         try:
+            # 定义列映射关系：源文件列名 -> 输出文件列名
+            column_mapping = {
+                '供应商名称': 'Vendor Name',
+                '维谛组织': 'OU Name',
+                '发票代码': 'invoicecode',
+                '发票号': 'invoice no',
+                '订单号': 'PoNo',
+                '物料编码': 'ITEM',
+                '行号': 'Line Num',
+                '数量': 'QuantitY',
+                '单价(不含税)': 'Price',
+                '总价(不含税)': 'Total(Pre-tax)',
+                '税额': 'TAX AMT',
+                '送货日期': 'Deliver date'
+            }
+
+            # 输出文件的列顺序（包含空列）
+            output_columns = [
+                'Vendor Name', 'OU Name', 'invoicecode', 'invoice no',
+                'PoNo', '', 'ITEM', 'Line Num', 'QuantitY', 'Price',
+                'Total(Pre-tax)', 'TAX AMT', 'Deliver date', 'TAX CODE'
+            ]
+
             # 读取所有Excel文件并合并
             all_data = []
 
             for idx, file in enumerate(self.input_files, 1):
                 try:
                     # 读取Excel文件
-                    df = pd.read_excel(file)
-                    all_data.append(df)
+                    # skiprows=7 跳过前7行（第1-6行是描述，第7行是标题）
+                    # header=0 表示跳过后的第一行作为列名
+                    df = pd.read_excel(file, skiprows=7, header=0)
+
+                    # 去除列名两端的空格
+                    df.columns = df.columns.str.strip()
+
+                    # 创建新的DataFrame，按照输出列顺序重新组织
+                    new_df = pd.DataFrame()
+
+                    # 映射源文件列到输出列
+                    for source_col, target_col in column_mapping.items():
+                        if source_col in df.columns:
+                            new_df[target_col] = df[source_col]
+                        else:
+                            # 如果源文件中没有这一列，创建空列
+                            new_df[target_col] = ''
+
+                    # 添加空列（PoNo和ITEM之间）
+                    new_df.insert(5, '', '')
+
+                    # 添加TAX CODE列（默认为空）
+                    new_df['TAX CODE'] = ''
+
+                    # 确保列的顺序与output_columns一致
+                    new_df = new_df[output_columns]
+
+                    all_data.append(new_df)
                     print(f"已读取文件 {idx}/{len(self.input_files)}: {os.path.basename(file)}")
+
                 except Exception as e:
-                    messagebox.showerror("错误", f"读取文件失败：{os.path.basename(file)}\n{str(e)}")
+                    messagebox.showerror("错误", f"读取文件失败：{os.path.basename(file)}\n错误信息：{str(e)}")
                     return
 
             # 合并所有数据
@@ -195,7 +245,7 @@ class ExcelMergerApp:
 
             # 生成输出文件名
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            default_filename = f"merged_excel_{timestamp}.csv"
+            default_filename = f"merged_invoice_{timestamp}.csv"
 
             # 选择保存位置
             output_file = filedialog.asksaveasfilename(
@@ -221,8 +271,8 @@ class ExcelMergerApp:
                     "成功",
                     f"文件合并成功！\n\n"
                     f"合并文件数：{len(self.input_files)}\n"
-                    f"总行数：{len(merged_df)}\n"
-                    f"总列数：{len(merged_df.columns)}\n"
+                    f"总数据行数：{len(merged_df)}\n"
+                    f"输出列数：{len(merged_df.columns)}\n"
                     f"保存位置：{output_file}"
                 )
 
