@@ -213,6 +213,21 @@ class ExcelMergerApp:
                     # 去除列名两端的空格
                     df.columns = df.columns.str.strip()
 
+                    # 过滤掉"供应商名称"为空的行（数据验证）
+                    if '供应商名称' in df.columns:
+                        # 记录原始行数
+                        original_rows = len(df)
+                        # 过滤掉供应商名称为空或NaN的行
+                        df = df[df['供应商名称'].notna() & (df['供应商名称'].astype(str).str.strip() != '')]
+                        filtered_rows = original_rows - len(df)
+                        if filtered_rows > 0:
+                            print(f"  - 过滤掉 {filtered_rows} 行无效数据（供应商名称为空）")
+
+                    # 如果过滤后没有数据，跳过该文件
+                    if len(df) == 0:
+                        print(f"  - 警告：文件无有效数据，已跳过")
+                        continue
+
                     # 创建新的DataFrame，按照输出列顺序重新组织
                     new_df = pd.DataFrame()
 
@@ -239,6 +254,11 @@ class ExcelMergerApp:
                 except Exception as e:
                     messagebox.showerror("错误", f"读取文件失败：{os.path.basename(file)}\n错误信息：{str(e)}")
                     return
+
+            # 检查是否有有效数据
+            if not all_data:
+                messagebox.showwarning("警告", "所有文件都没有有效数据（供应商名称为空），无法合并！")
+                return
 
             # 合并所有数据
             merged_df = pd.concat(all_data, ignore_index=True)
