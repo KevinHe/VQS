@@ -208,13 +208,28 @@ class ExcelMergerApp:
                     # 定义需要保持文本格式的列（防止0开头的数字丢失前导0）
                     text_dtype_columns = ['物料编码', '发票代码', '发票号', '订单号', '行号']
 
+                    # 根据文件扩展名选择合适的引擎
+                    file_ext = os.path.splitext(file)[1].lower()
+                    if file_ext == '.xls':
+                        engine = 'xlrd'
+                    elif file_ext == '.xlsx':
+                        engine = 'openpyxl'
+                    else:
+                        # 其他格式尝试自动识别
+                        engine = None
+
                     # 读取Excel文件
                     # skiprows=6 跳过前6行（第1-6行是描述）
                     # header=0 表示跳过后的第一行（第7行）作为列名
                     # 数据从第8行开始读取
                     # dtype=str 强制将指定列读取为字符串类型
+                    # engine 根据文件格式选择合适的引擎
                     dtype_dict = {col: str for col in text_dtype_columns}
-                    df = pd.read_excel(file, skiprows=6, header=0, dtype=dtype_dict)
+
+                    if engine:
+                        df = pd.read_excel(file, skiprows=6, header=0, dtype=dtype_dict, engine=engine)
+                    else:
+                        df = pd.read_excel(file, skiprows=6, header=0, dtype=dtype_dict)
 
                     # 去除列名两端的空格
                     df.columns = df.columns.str.strip()
