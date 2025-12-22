@@ -1,0 +1,30 @@
+# PyInstaller打包产生的文件
+build/
+dist/
+*.spec
+
+# Python编译文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 虚拟环境
+venv/
+env/
+ENV/
+
+# IDE配置文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 测试文件
+test_*.xlsx
+test_*.xls
+merged_*.csv

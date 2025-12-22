@@ -13,10 +13,23 @@
 
 ## 系统要求
 
+### 使用exe版本（推荐给最终用户）
+- Windows 7 及以上版本
+- 无需安装Python
+
+### 使用Python版本（开发者）
 - Windows 7 及以上版本
 - Python 3.7 或更高版本
 
-## 安装步骤
+## 快速开始（使用exe文件）
+
+**如果你收到了exe文件，可以直接使用：**
+
+1. 双击运行 `Excel合并工具.exe`
+2. 无需安装Python或任何依赖包
+3. 直接开始使用（跳转到"操作说明"部分）
+
+## 安装步骤（开发者/从源码运行）
 
 ### 1. 安装Python
 
@@ -83,6 +96,7 @@ python excel_merger.py
 
 - `excel_merger.py` - 主程序文件
 - `requirements.txt` - Python依赖包列表
+- `build_exe.bat` - 打包脚本（将程序打包成exe）
 - `README.md` - 使用说明文档
 
 ## 常见问题
@@ -98,6 +112,51 @@ A: 本工具已使用UTF-8-BOM编码，应该不会出现乱码。如果仍有�
 **Q: 可以合并不同格式的Excel文件吗？**
 
 A: 可以尝试，但建议所有文件具有相同的列结构，否则可能会出现数据错位。
+
+## 打包成exe文件（开发者）
+
+如果你需要将程序打包成exe文件分发给其他用户，请按照以下步骤操作：
+
+### 方法一：使用打包脚本（推荐）
+
+1. 确保已安装所有依赖：
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. 双击运行 `build_exe.bat` 脚本
+
+3. 等待打包完成，生成的exe文件位于 `dist\Excel合并工具.exe`
+
+### 方法二：手动打包
+
+1. 安装PyInstaller：
+   ```bash
+   pip install pyinstaller
+   ```
+
+2. 运行打包命令：
+   ```bash
+   pyinstaller --onefile --windowed --name "Excel合并工具" excel_merger.py
+   ```
+
+3. 打包完成后，exe文件位于 `dist` 目录
+
+### 打包说明
+
+- `--onefile`: 打包成单个exe文件
+- `--windowed`: 不显示命令行窗口（GUI程序）
+- `--name`: 指定生成的exe文件名
+- 生成的exe文件约50-100MB（包含所有依赖库）
+- 首次运行可能需要几秒钟启动时间（解压临时文件）
+
+### 分发说明
+
+打包完成后，你可以：
+1. 直接分发 `dist\Excel合并工具.exe` 文件给用户
+2. 用户无需安装Python或任何依赖包
+3. 双击exe文件即可运行
+4. 建议同时提供简单的使用说明
 
 ## 许可证
 
