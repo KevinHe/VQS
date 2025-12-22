@@ -306,8 +306,8 @@ class ExcelMergerApp:
             )
 
             if output_file:
-                # 保存为CSV文件（使用UTF-8编码，带BOM以支持Excel打开中文）
-                merged_df.to_csv(output_file, index=False, encoding='utf-8-sig')
+                # 保存为CSV文件（使用ANSI编码（GBK）以支持Excel打开中文）
+                merged_df.to_csv(output_file, index=False, encoding='gbk')
 
                 # 更新输出显示
                 self.output_file = output_file
