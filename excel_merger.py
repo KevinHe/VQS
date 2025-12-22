@@ -205,13 +205,24 @@ class ExcelMergerApp:
 
             for idx, file in enumerate(self.input_files, 1):
                 try:
+                    # 定义需要保持文本格式的列（防止0开头的数字丢失前导0）
+                    text_dtype_columns = ['物料编码', '发票代码', '发票号', '订单号', '行号']
+
                     # 读取Excel文件
                     # skiprows=7 跳过前7行（第1-6行是描述，第7行是标题）
                     # header=0 表示跳过后的第一行作为列名
-                    df = pd.read_excel(file, skiprows=7, header=0)
+                    # dtype=str 强制将指定列读取为字符串类型
+                    dtype_dict = {col: str for col in text_dtype_columns}
+                    df = pd.read_excel(file, skiprows=7, header=0, dtype=dtype_dict)
 
                     # 去除列名两端的空格
                     df.columns = df.columns.str.strip()
+
+                    # 清理文本列中的NaN值（已在读取时指定为字符串类型）
+                    for col in text_dtype_columns:
+                        if col in df.columns:
+                            # 将'nan'字符串替换为空字符串
+                            df[col] = df[col].replace(['nan', 'NaN', 'None'], '')
 
                     # 过滤掉"供应商名称"为空的行（数据验证）
                     if '供应商名称' in df.columns:
